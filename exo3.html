@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3: Adding and removing values from a chart (dynamic labels included)</title>
+		<script type="text/javascript" src="d3.v3.js"></script>
+		<style type="text/css">
+			/* No style rules here yet */
+		</style>
+	</head>
+	<body>
+	
+		<p id="add">Add a new data value</p>
+		<p id="remove">Remove a data value</p>
+			
+		<script type="text/javascript">
+
+			//Width and height
+			var w = 600;
+			var h = 250;
+			
+			var dataset = [];
+			for(var i=0; i<20; i++)
+			{
+				dataset[i]=Math.floor(Math.random()*100);
+				console.log(dataset[i]);
+			}
+			
+			
+
+			var yScale = d3.scale.linear()
+							.domain([0, d3.max(dataset, function(d) { return d; })])
+							.range([0, h]);
+			
+			//Define key function, to be used when binding data
+		
+			
+			//Create SVG element
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+			
+							
+							var bars= svg.selectAll("rect").data(dataset);
+
+   bars.enter()
+   .append("rect")
+   .attr("x", function(d, i) {
+    return i*(w/dataset.length)+1;
+})
+   .attr("y", function(d) {
+    return h-yScale(d);  // Hauteur moins la valeur de la donnée
+}).attr("width", w/dataset.length-1)
+
+  .attr("height", function(d) {
+    return yScale(d);  // Juste la valeur de la donnée
+})
+.attr("fill", function(d) {
+							return "rgb(0, 0, " + (d * 100) + ")";
+						});
+			
+d3.selectAll("p")
+				.on("click", function() {
+
+					//See which p was clicked
+					var paragraphID = d3.select(this).attr("id");
+					
+					//Decide what to do next
+					if (paragraphID == "add") {
+						
+                       dataset.push([Math.floor(Math.random() * 100)])	;				
+						
+					} else {
+					    //Remove a value
+						dataset.shift();	//Remove one value from dataset
+					}
+					
+					//Update scale domains
+console.log("nvl taille="+dataset.length);
+
+			 yScale = d3.scale.linear()
+							.domain([0, d3.max(dataset, function(d) { return d; })])
+							.range([0, h]);  
+							
+ bars= svg.selectAll("rect").data(dataset);
+
+   bars.enter()
+   .append("rect")
+   .attr("x", function(d, i) {
+    return i*(w/dataset.length)+1;
+})
+   .attr("y", function(d) {
+    return h-yScale(d);  // Hauteur moins la valeur de la donnée
+}).attr("width", w/dataset.length-1)
+
+  .attr("height", function(d) {
+    return yScale(d);  // Juste la valeur de la donnée
+})
+.attr("fill", function(d) {
+							return "rgb(0, 0, " + (d * 100) + ")";
+						});
+
+bars.transition().duration(500)
+						.attr("x", function(d, i) {
+							return i*(w/dataset.length)+1;
+						})
+						.attr("y", function(d) {
+							return h - yScale(d);
+						})
+						.attr("width",  w/dataset.length-1)
+						.attr("height", function(d) {
+							return yScale(d);
+						});
+
+						
+				
+					bars.exit()
+						.transition()
+						.duration(500)
+                         .remove();
+
+
+				});
+			
+		</script>
+	</body>
+</html>
